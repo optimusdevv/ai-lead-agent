@@ -248,6 +248,8 @@ Website summary:
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"AI qualification failed: {str(e)}")
 
+    return result
+
 
 @app.on_event("startup")
 async def startup_event():
