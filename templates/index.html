@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lead Qualification Agent</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI Lead Qualification Agent</h1>
+            <p>Enter lead details to get AI-powered scoring and personalized outreach</p>
+        </header>
+
+        <main>
+            <section class="form-section">
+                <h2>Qualify New Lead</h2>
+                <form id="leadForm">
+                    <div class="form-group">
+                        <label for="name">Lead Name *</label>
+                        <input type="text" id="name" name="name" placeholder="John Smith" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="company">Company *</label>
+                        <input type="text" id="company" name="company" placeholder="Acme Corp" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="website">Website</label>
+                        <input type="url" id="website" name="website" placeholder="https://acmecorp.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="industry">Industry</label>
+                        <input type="text" id="industry" name="industry" placeholder="Technology, Healthcare, etc.">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" name="notes" rows="3" placeholder="Additional context about the lead..."></textarea>
+                    </div>
+
+                    <button type="submit" id="submitBtn">
+                        <span class="btn-text">Qualify Lead</span>
+                        <span class="btn-loading" style="display: none;">Analyzing...</span>
+                    </button>
+                </form>
+
+                <div id="result" class="result-card" style="display: none;">
+                    <h3>Qualification Result</h3>
+                    <div class="result-grid">
+                        <div><strong>Score:</strong> <span id="score"></span></div>
+                        <div><strong>Confidence:</strong> <span id="confidence"></span></div>
+                    </div>
+                    <p><strong>Reasoning:</strong> <span id="reasoning"></span></p>
+                    <p><strong>Website Summary:</strong> <span id="website_summary"></span></p>
+                    <p><strong>Outreach Message:</strong></p>
+                    <div id="outreach_message"></div>
+                </div>
+                <div id="error" class="error-card" style="display: none;"></div>
+            </section>
+
+            <section class="leads-section">
+                <h2>Previous Leads</h2>
+                <div id="leadsList" class="leads-list">
+                    <p class="loading-text">Loading leads...</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const API_BASE = '';
+
+        // Load leads on page load
+        document.addEventListener('DOMContentLoaded', loadLeads);
+
+        // Handle form submission
+        document.getElementById('leadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const btnLoading = submitBtn.querySelector('.btn-loading');
+            const resultDiv = document.getElementById('result');
+            const errorDiv = document.getElementById('error');
+
+            // Show loading state
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline';
+            submitBtn.disabled = true;
+            resultDiv.style.display = 'none';
+            errorDiv.style.display = 'none';
+
+            const formData = {
+                name: document.getElementById('name').value,
+                company: document.getElementById('company').value,
+                website: document.getElementById('website').value,
+                industry: document.getElementById('industry').value,
+                notes: document.getElementById('notes').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/lead/qualify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Failed to qualify lead');
+                }
+
+                const lead = await response.json();
+                showResult(lead);
+                document.getElementById('leadForm').reset();
+
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                btnText.style.display = 'inline';
+                btnLoading.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        });
+
+        function showResult(data) {
+            document.getElementById("score").textContent = data.score;
+            document.getElementById("confidence").textContent = data.confidence;
+            document.getElementById("reasoning").textContent = data.reasoning;
+            document.getElementById("website_summary").textContent = data.website_summary;
+            document.getElementById("outreach_message").textContent = data.outreach_message;
+            document.getElementById("result").style.display = "block";
+
+            loadLeads();
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        async function loadLeads() {
+            const leadsList = document.getElementById('leadsList');
+
+            try {
+                const response = await fetch(`${API_BASE}/leads`);
+                if (!response.ok) throw new Error('Failed to load leads');
+
+                const leads = await response.json();
+
+                if (leads.length === 0) {
+                    leadsList.innerHTML = '<p class="empty-text">No leads yet. Submit a lead above to get started!</p>';
+                    return;
+                }
+
+                leadsList.innerHTML = leads.map(lead => `
+                    <div class="lead-card">
+                        <div class="lead-header">
+                            <div class="score score-${lead.score ? lead.score.toLowerCase() : 'cold'}">${lead.score || 'N/A'}</div>
+                            ${lead.confidence ? `<span class="confidence-badge confidence-${lead.confidence.toLowerCase()}">${lead.confidence}</span>` : ''}
+                            <div class="lead-info">
+                                <span class="lead-name">${escapeHtml(lead.name)}</span>
+                                <span class="lead-company">${escapeHtml(lead.company)}</span>
+                            </div>
+                        </div>
+                        ${lead.website_summary ? `<p class="lead-summary"><strong>Summary:</strong> ${escapeHtml(lead.website_summary)}</p>` : ''}
+                        ${lead.reasoning ? `<p class="lead-reasoning">${escapeHtml(lead.reasoning)}</p>` : ''}
+                        ${lead.outreach_message ? `<div class="lead-outreach"><strong>Outreach:</strong> <button class="copy-btn" data-text="${escapeHtml(lead.outreach_message).replace(/"/g, '&quot;')}">Copy</button><p>${escapeHtml(lead.outreach_message)}</p></div>` : ''}
+                        <div class="lead-footer">
+                            <span class="lead-date">${formatDate(lead.created_at)}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                leadsList.innerHTML = `<p class="error-text">Error loading leads: ${escapeHtml(err.message)}</p>`;
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Copy button handler
+        document.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('copy-btn')) {
+                const btn = e.target;
+                const text = btn.dataset.text;
+                try {
+                    await navigator.clipboard.writeText(text);
+                    btn.textContent = 'Copied!';
+                    btn.classList.add('copied');
+                    setTimeout(() => {
+                        btn.textContent = 'Copy';
+                        btn.classList.remove('copied');
+                    }, 2000);
+                } catch (err) {
+                    btn.textContent = 'Failed';
+                    setTimeout(() => {
+                        btn.textContent = 'Copy';
+                    }, 2000);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
