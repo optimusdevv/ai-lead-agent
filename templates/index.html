@@ -91,6 +91,7 @@
             btnText.style.display = 'none';
             btnLoading.style.display = 'inline';
             submitBtn.disabled = true;
+            submitBtn.innerText = "Analyzing...";
             resultDiv.style.display = 'none';
             errorDiv.style.display = 'none';
 
@@ -121,11 +122,12 @@
                 document.getElementById('leadForm').reset();
 
             } catch (err) {
-                showError(err.message);
+                showError("Something went wrong. Try again.");
             } finally {
                 btnText.style.display = 'inline';
                 btnLoading.style.display = 'none';
                 submitBtn.disabled = false;
+                submitBtn.innerText = "Qualify Lead";
             }
         });
 
