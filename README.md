@@ -15,6 +15,10 @@ https://ai-lead-agent-1.onrender.com
 * 💾 Lead Storage: Saves all leads using SQLite
 * 🎯 Real-world Use Case: Built for agencies, startups, and sales teams
 
+## 📸 Preview
+<img width="1340" height="915" alt="Screenshot 2026-03-31 051743" src="https://github.com/user-attachments/assets/6504cf61-bc98-4096-b920-46935de5f102" />
+
+
 ## 🛠️ Tech Stack
 
 * **Backend:** FastAPI
