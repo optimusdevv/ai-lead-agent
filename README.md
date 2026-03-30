@@ -1,31 +1,70 @@
 # AI Lead Qualification Agent
 
-A full-stack web application that uses AI to qualify leads and generate personalized outreach messages.
+An AI-powered lead intelligence tool that analyzes businesses, scores lead quality, and generates personalized outreach messages.
 
-## Features
+## 🚀 Live Demo
 
-- **AI-Powered Lead Scoring**: HOT / WARM / COLD classification
-- **Personalized Outreach**: AI-generated outreach messages
-- **SQLite Database**: All leads stored locally
-- **Modern UI**: Clean, responsive design
+https://ai-lead-agent-1.onrender.com
 
-## Setup
+## ✨ Features
 
-1. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
+* 🔍 Website Analysis: Scrapes and understands company websites
+* 🧠 AI Lead Scoring: Classifies leads as **HOT / WARM / COLD**
+* 📊 Confidence Score: Indicates reliability of the qualification
+* ✉️ Personalized Outreach: Generates tailored sales messages
+* 💾 Lead Storage: Saves all leads using SQLite
+* 🎯 Real-world Use Case: Built for agencies, startups, and sales teams
+
+## 🛠️ Tech Stack
+
+* **Backend:** FastAPI
+* **Frontend:** HTML, CSS, JavaScript
+* **AI:** OpenRouter (LLMs)
+* **Database:** SQLite
+
+## ⚙️ How It Works
+
+1. User inputs lead details (company, website, notes)
+2. App scrapes website content
+3. AI summarizes and analyzes the business
+4. Lead is scored based on intent and fit
+5. Personalized outreach message is generated
+
+## 🧪 Example Output
+
+* Score: HOT
+* Confidence: HIGH
+* Reasoning: Strong SaaS product with clear scaling signals
+* Outreach: “Hey, noticed your team is scaling rapidly…”
+
+## 📌 Use Cases
+
+* Sales teams qualifying inbound leads
+* Agencies automating outreach
+* Startups analyzing potential clients
+
+## 📦 Setup
+
+```bash
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
+## 🔐 Environment Variables
+
+```env
+OPENAI_API_KEY=your_api_key
+MODEL=openai/gpt-4o-mini
+```
+
+## 📈 Future Improvements
+
+* Lead dashboard & analytics
+* CSV export
+* Multi-user support
+* CRM integrations
+  
    ```
-
-2. **Configure environment**:
-   - Copy `.env.example` to `.env`
-   - Add your OpenRouter API key: https://openrouter.ai/keys
-
-3. **Run the application**:
-   ```bash
-   cd app
-   uvicorn main:app --reload --port 8000
-   ```
-
 4. **Open in browser**:
    ```
    http://localhost:8000
