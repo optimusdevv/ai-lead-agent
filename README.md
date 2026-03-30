@@ -53,7 +53,7 @@ uvicorn app.main:app --reload
 ## 🔐 Environment Variables
 
 ```env
-OPENAI_API_KEY=your_api_key
+OPENROUTER_API_KEY=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
 MODEL=openai/gpt-4o-mini
 ```
 
